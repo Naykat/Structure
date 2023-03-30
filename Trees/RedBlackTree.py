@@ -1,5 +1,5 @@
 class Node:
-    def __init__(self, value):
+    def __init__(self, value: int):
         self.value = value
         self.color = "RED"
         self.left = None
@@ -10,7 +10,7 @@ class RedBlackTree:
     def __init__(self):
         self.root = None
 
-    def insert(self, value):
+    def insert(self, value: int):
         node = Node(value)
         node.parent = None
         node.value = value
@@ -40,7 +40,7 @@ class RedBlackTree:
 
         self.fix_insert(node)
 
-    def fix_insert(self, node):
+    def fix_insert(self, node: Node):
         while node.parent is not None and node.parent.color == "RED":
             if node.parent == node.parent.parent.right:
                 uncle = node.parent.parent.left
@@ -74,7 +74,7 @@ class RedBlackTree:
 
         self.root.color = "BLACK"
 
-    def left_rotate(self, node):
+    def left_rotate(self, node: Node):
         right_child = node.right
         node.right = right_child.left
 
@@ -93,7 +93,7 @@ class RedBlackTree:
         right_child.left = node
         node.parent = right_child
 
-    def right_rotate(self, node):
+    def right_rotate(self, node: Node):
         left_child = node.left
         node.left = left_child.right
 
@@ -112,164 +112,165 @@ class RedBlackTree:
         left_child.right = node
         node.parent = left_child
 
-    def search(self, value):
+
+    def search(self, value: int) -> Node:
         current = self.root
         while current is not None:
             if current.value == value:
-                return True
+                return current
             elif current.value > value:
                 current = current.left
             else:
                 current = current.right
+        else:
+            return None
 
-        return False
 
-    def inorder_traversal(self, node):
+    def traversal(self, node: Node):
         if node is not None:
-            self.inorder_traversal(node.left)
+            self.traversal(node.left)
             print(node.value, end=" ")
-            self.inorder_traversal(node.right)
+            self.traversal(node.right)
 
-    def preorder_traversal(self, node):
-        if node is not None:            
-            print(node.value, end=" ")
-            self.preorder_traversal(node.left)
-            self.preorder_traversal(node.right)
-
-    def postorder_traversal(self, node):
-        if node is not None:
-            self.postorder_traversal(node.left)
-            self.postorder_traversal(node.right)
-            print(node.value, end=" ")
-
-    def level_order_traversal(self):
-        if self.root is None:
-            return
-
-        queue = []
-        queue.append(self.root)
-
-        while len(queue) > 0:
-            current = queue.pop(0)
-            print(current.value, end=" ")
-            if current.left is not None:
-                queue.append(current.left)
-            if current.right is not None:
-                queue.append(current.right)
-
-    def delete(self, value):
-        self.delete_node_helper(self.root, value)
-
-    def delete_node_helper(self, node, value):
-        # find the node containing the value
-        z = None
+    def delete(self, value: int) -> None:
+        node = self.root
         while node is not None:
-            if node.value == value:
-                z = node
-
-            if node.value <= value:
-                node = node.right
-            else:
+            if value == node.value:
+                break
+            elif value < node.value:
                 node = node.left
+            else:
+                node = node.right
 
-        if z is None:
-            print("Couldn't find key in the tree")
+        if node is None:
             return
 
-        y = z
-        y_original_color = y.color
-        if z.left is None:
-            x = z.right
-            self.transplant(z, z.right)
-        elif z.right is None:
-            x = z.left
-            self.transplant(z, z.left)
-        else:
-            y = self.minimum(z.right)
-            y_original_color = y.color
-            x = y.right
-            if y.parent == z:
-                x.parent = y
-            else:
-                self.transplant(y, y.right)
-                y.right = z.right
-                y.right.parent = y
+        if node.left is not None and node.right is not None:
+            successor = node.right
+            while successor.left is not None:
+                successor = successor.left
+            node.value = successor.value
+            node = successor
 
-            self.transplant(z, y)
-            y.left = z.left
-            y.left.parent = y
-            y.color = z.color
-
-        if y_original_color == "BLACK":
-            self.fix_delete(x)
-
-    def fix_delete(self, x):
-        while x != self.root and x.color == "BLACK":
-            if x == x.parent.left:
-                w = x.parent.right
-                if w.color == "RED":
-                    w.color = "BLACK"
-                    x.parent.color = "RED"
-                    self.left_rotate(x.parent)
-                    w = x.parent.right
-
-                if w.left.color == "BLACK" and w.right.color == "BLACK":
-                    w.color = "RED"
-                    x = x.parent
+        if node.color == "RED":
+            if node.left is None and node.right is None:
+                if node.parent is not None:
+                    if node == node.parent.left:
+                        node.parent.left = None
+                    else:
+                        node.parent.right = None
                 else:
-                    if w.right.color == "BLACK":
-                        w.left.color = "BLACK"
-                        w.color = "RED"
-                        self.right_rotate(w)
-                        w = x.parent.right
-
-                    w.color = x.parent.color
-                    x.parent.color = "BLACK"
-                    w.right.color = "BLACK"
-                    self.left_rotate(x.parent)
-                    x = self.root
+                    self.root = None
             else:
-                w = x.parent.left
-                if w.color == "RED":
-                    w.color = "BLACK"
-                    x.parent.color = "RED"
-                    self.right_rotate(x.parent)
-                    w = x.parent.left
-
-                if w.right.color == "BLACK" and w.left.color == "BLACK":
-                    w.color = "RED"
-                    x = x.parent
+                if node.left is not None:
+                    child = node.left
                 else:
-                    if w.left.color == "BLACK":
-                        w.right.color = "BLACK"
-                        w.color = "RED"
-                        self.left_rotate(w)
-                        w = x.parent.left
+                    child = node.right
 
-                    w.color = x.parent.color
-                    x.parent.color = "BLACK"
-                    w.left.color = "BLACK"
-                    self.right_rotate(x.parent)
-                    x = self.root
-
-        x.color = "BLACK"
-
-    def transplant(self, u, v):
-        if u.parent is None:
-            self.root = v
-        elif u == u.parent.left:
-            u.parent.left = v
+                if node.parent is not None:
+                    if node == node.parent.left:
+                        node.parent.left = child
+                    else:
+                        node.parent.right = child
+                    child.parent = node.parent
+                else:
+                    self.root = child
+                    child.parent = None
+                child.color = "BLACK"
         else:
-            u.parent.right = v
-        if v is not None:
-            v.parent = u.parent
+            if node.left is None and node.right is None:
+                if node.parent is not None:
+                    self.__fix_double_black(node)
+                    if node == node.parent.left:
+                        node.parent.left = None
+                    else:
+                        node.parent.right = None
+                else:
+                    self.root = None
+            else:
+                if node.left is not None:
+                    child = node.left
+                else:
+                    child = node.right
 
-    def minimum(self, node):
+                if node.parent is not None:
+                    if node == node.parent.left:
+                        node.parent.left = child
+                    else:
+                        node.parent.right = child
+                    child.parent = node.parent
+                    self.__fix_double_black(child)
+                else:
+                    self.root = child
+                    child.parent = None
+                    child.color = "BLACK"
+                    
+    def __fix_double_black(self, node: Node) -> None:
+        if node.parent is None:
+            return
+
+        sibling = self.__get_sibling(node)
+        if sibling is None:
+            self.fix_double_black(node.parent)
+        else:
+            if sibling.color == "RED":
+                node.parent.color = "RED"
+                sibling.color = "BLACK"
+                if sibling == sibling.parent.left:
+                    self.right_rotate(sibling)
+                else:
+                    self.left_rotate(sibling)
+                self.fix_double_black(node)
+            else:
+                if (sibling.left is None or sibling.left.color == "BLACK") and \
+                   (sibling.right is None or sibling.right.color == "BLACK"):
+                    sibling.color = "RED"
+                    if node.parent.color == "BLACK":
+                        self.__fix_double_black(node.parent)
+                    else:
+                        node.parent.color = "BLACK"
+                else:
+                    if sibling == sibling.parent.left:
+                        if sibling.right is not None and sibling.right.color == "RED":
+                            sibling.right.color = "BLACK"
+                            sibling.color = node.parent.color
+                            self.left_rotate(sibling)
+                            node.parent.color = "BLACK"
+                        else:
+                            sibling.color = "RED"
+                            if sibling.left is not None:
+                                sibling.left.color = "BLACK"
+                            self.right_rotate(sibling)
+                            self.__fix_double_black(node)
+                    else:
+                        if sibling.left is not None and sibling.left.color == "RED":
+                            sibling.left.color = "BLACK"
+                            sibling.color = node.parent.color
+                            self.right_rotate(sibling)
+                            node.parent.color = "BLACK"
+                        else:
+                            sibling.color = "RED"
+                            if sibling.right is not None:
+                                sibling.right.color = "BLACK"
+                            self.left_rotate(sibling)
+                            self.__fix_double_black(node)
+
+    def __get_sibling(self, node: Node) -> Node:
+        if node.parent is None:
+            return None
+        if node == node.parent.left:
+            return node.parent.right
+        else:
+            return node.parent.left
+
+    def minimum(self):
+        node = self.root
         while node.left is not None:
             node = node.left
         return node
 
-    def maximum(self, node):
+    def maximum(self):
+        node = self.root
         while node.right is not None:
             node = node.right
         return node
