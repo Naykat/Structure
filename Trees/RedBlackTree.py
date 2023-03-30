@@ -1,5 +1,5 @@
 class Node:
-    def __init__(self, value: int):
+    def __init__(self, value):
         self.value = value
         self.color = "RED"
         self.left = None
@@ -10,7 +10,7 @@ class RedBlackTree:
     def __init__(self):
         self.root = None
 
-    def insert(self, value: int):
+    def insert(self, value):
         node = Node(value)
         node.parent = None
         node.value = value
@@ -113,7 +113,7 @@ class RedBlackTree:
         node.parent = left_child
 
 
-    def search(self, value: int) -> Node:
+    def search(self, value) -> Node:
         current = self.root
         while current is not None:
             if current.value == value:
@@ -132,7 +132,7 @@ class RedBlackTree:
             print(node.value, end=" ")
             self.traversal(node.right)
 
-    def delete(self, value: int) -> None:
+    def delete(self, value) -> None:
         node = self.root
         while node is not None:
             if value == node.value:
